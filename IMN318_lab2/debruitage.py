@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from scipy.fft import rfft, irfft, rfftfreq
 
 t = np.linspace(0,0.5,1000)
+dt = t[1] - t[0]
+fs = 1/dt
 
 f_bruit = [-1.82302785e+00, -3.11440121e-01,  1.42384822e+00,  8.81605668e-01,
   3.17907835e+00,  3.35785418e+00,  1.36023278e+00,  3.72652970e+00,
@@ -258,7 +260,8 @@ f_bruit = [-1.82302785e+00, -3.11440121e-01,  1.42384822e+00,  8.81605668e-01,
 plt.plot(t, f_bruit)
 plt.show()
 
-f_bruit_sa = rfft(f_bruit)
+yf = rfft(f_bruit)
+xf = rfftfreq(len(f_bruit), dt)
 
-plt.plot(t, f_bruit_sa)
+plt.plot(xf, np.abs(yf))
 plt.show()
