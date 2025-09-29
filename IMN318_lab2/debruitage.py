@@ -4,7 +4,7 @@ from scipy.fft import rfft, irfft, rfftfreq
 
 t = np.linspace(0,0.5,1000)
 dt = t[1] - t[0]
-fs = 1/dt
+
 
 f_bruit = [-1.82302785e+00, -3.11440121e-01,  1.42384822e+00,  8.81605668e-01,
   3.17907835e+00,  3.35785418e+00,  1.36023278e+00,  3.72652970e+00,
@@ -265,3 +265,38 @@ xf = rfftfreq(len(f_bruit), dt)
 
 plt.plot(xf, np.abs(yf))
 plt.show()
+
+
+fs = 1/dt
+M = 2
+L = 2*M + 1
+fk = rfftfreq(len(f_bruit), d=dt)
+wk = 2*np.pi*fk/fs
+n  = fk.size
+
+cols = [np.ones(n)]
+for m in range(1, M+1):
+    cols.append(2*np.cos(m*wk))
+C = np.column_stack(cols)
+
+d = np.zeros(n, dtype=float)
+
+f1, f2 = 0.0, fs/10.0
+d[(fk >= f1) & (fk <= f2)] = 1.0
+
+a, *_ = np.linalg.lstsq(C, d, rcond=None)
+
+h = np.zeros(L, dtype=float)
+h[M] = a[0]
+for m in range(1, M+1):
+    h[M-m] = a[m]
+    h[M+m] = a[m]
+
+y = np.convolve(f_bruit, h, mode='same')
+
+X = rfft(f_bruit); Y = rfft(y)
+F = rfftfreq(len(f_bruit), d=dt)
+
+plt.figure(); plt.plot(F, np.abs(X), label="avant")
+plt.plot(F, np.abs(Y), label="après"); plt.legend(); plt.title("Spectre")
+plt.figure(); plt.plot(y); plt.title("Signal filtré"); plt.show()
