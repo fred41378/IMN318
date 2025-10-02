@@ -260,10 +260,10 @@ f_bruit = [-1.82302785e+00, -3.11440121e-01,  1.42384822e+00,  8.81605668e-01,
 plt.plot(t, f_bruit)
 plt.show()
 
-yf = rfft(f_bruit)
-xf = rfftfreq(len(f_bruit), dt)
+f_bruit_freq = rfft(f_bruit)
+f_bruit_freq_omega = rfftfreq(len(f_bruit), dt)
 
-plt.plot(xf, np.abs(yf))
+plt.plot(f_bruit_freq_omega, np.abs(f_bruit_freq))
 plt.show()
 
 
@@ -297,6 +297,53 @@ y = np.convolve(f_bruit, h, mode='same')
 X = rfft(f_bruit); Y = rfft(y)
 F = rfftfreq(len(f_bruit), d=dt)
 
-plt.figure(); plt.plot(F, np.abs(X), label="avant")
-plt.plot(F, np.abs(Y), label="après"); plt.legend(); plt.title("Spectre")
-plt.figure(); plt.plot(y); plt.title("Signal filtré"); plt.show()
+plt.figure()
+plt.plot(F, np.abs(X), label="avant")
+plt.plot(F, np.abs(Y), label="après")
+plt.legend()
+plt.title("Spectre")
+plt.figure()
+plt.plot(y)
+plt.title("Signal filtré")
+plt.show()
+
+
+#Versions du prof
+fs2 = 2000
+bands [(50.0, 4.0), (100.0, 4.0)]
+
+npoints = 2000
+
+f_k = np.linspace(0, fs2//w, npoints)
+w_k = 2 * np.pi * f_k / fs2
+
+L2 = 501
+M2 = (L2 - 1) // 2
+
+C2 = n'.zeros((npoints, M2+1))
+for i in range(npoints):
+  C2[i,0] = 1
+  for j in range (1, M2 + 1j:
+    C2[i,j] = 2 * np.cos(j * w_k[i])
+
+d_k = np.zeros_like(f_k)
+for i in range(npoints):
+  if f_k[i] > bands[0][0] - bands[0][1] and f_k[i] < bands[0][0] + bands[0][1]:
+    d_k[i] = 1.0
+  elif f_k[i] > bands[1][0] - bands[1][1] and f_k[i] < bands[1][0] + bands[1][1]:
+    d_k[i] = 1.0
+
+a, *_ = np.linalg.lstsq(C2, d_k, rcond=None)
+
+h2 = np.zeros(L2, dtype=float)
+h2[M2] = a[0]
+for m in range(1, M2 + 1):
+  h2[M2 + m] = a[m]
+  h2[Mw - m] = a[m]
+
+y2 = convolve(f_bruit, h2, mode='same')
+
+#afficher avec plot
+
+y_freq = rffft(y2)
+#... il me manque le reste
