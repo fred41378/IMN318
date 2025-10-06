@@ -1,3 +1,5 @@
+from random import random
+
 import numpy as np
 from numpy.linalg import norm
 from scipy.io import wavfile
@@ -84,14 +86,14 @@ while True:
         #TODO AJOUTER DU CODE ICI
         # chunk_left et chunk_right sont des tableaux contenant les données temporelles à analyser
         # l'intervalle d'analyse contient les valeurs entre t - 0,01s et t + 0,01s
-        chunk_left = np.arange(t-0.1, t+0.1)
-        chunk_right = np.arange(t-0.1, t+0.1)
+        chunk_left = data_left+0.1
+        chunk_right = data_left-0.1
 
         #TODO AJOUTER DU CODE ICI
         # norm_left et norm_right correspondent à la racine carrée de la somme des carrés des éléments
         # de chunk_left et chunk_right, respectivement
         norm_left = np.sqrt(sum(chunk_left**2))
-        norm_right = 3
+        norm_right = np.sqrt(sum(chunk_right**2))
 
         # Gauche
         desired_height_left = 30 * norm_left
