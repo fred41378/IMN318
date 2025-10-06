@@ -5,19 +5,21 @@ from scipy.fft import rfft, rfftfreq
 import pygame
 import sys
 
-# Ouverture du fichier musical pour l'analyse
-fs, data = wavfile.read("toxic.wav")
+fichier_a_lire = "./fichiers_sonores/toxic.wav"
 
+# Ouverture du fichier musical pour l'analyse
+fs, data = wavfile.read(fichier_a_lire)
 
 # Séparation des canaux gauche-droite
-# AJOUTER DU CODE ICI
-data_left = 0
-data_right = 0
+#TODO AJOUTER DU CODE ICI
+data_left = data[:,0]
+data_right = data[:,1]
+
 
 # Pour des fins de manipulation, ramener les valeurs des cannaux gauche-droite entre -1 et 1
-# AJOUTER DU CODE ICI
-data_left = -1
-data_right = 1
+#TODO AJOUTER DU CODE ICI
+data_left = data_left/np.max(data_left)
+data_right = data_right/np.max(data_right)
 
 # Initialisation de la fenêtre graphique
 pygame.init()
@@ -25,7 +27,7 @@ display = (800, 600)
 surface = pygame.display.set_mode(display)
 
 # Ouverture du fichier musical pour la lecture
-pygame.mixer.music.load("toxic.wav")
+pygame.mixer.music.load(fichier_a_lire)
 pygame.mixer.music.play(0)
 play_time = pygame.time.get_ticks()
 
@@ -79,17 +81,17 @@ while True:
         deltaTime = (t - getTicksLastFrame) / 1000.0
         getTicksLastFrame = t
 
-        # AJOUTER DU CODE ICI
+        #TODO AJOUTER DU CODE ICI
         # chunk_left et chunk_right sont des tableaux contenant les données temporelles à analyser
         # l'intervalle d'analyse contient les valeurs entre t - 0,01s et t + 0,01s
-        chunk_left = 0
-        chunk_right = 0
+        chunk_left = np.arange(t-0.1, t+0.1)
+        chunk_right = np.arange(t-0.1, t+0.1)
 
-        # AJOUTER DU CODE ICI
+        #TODO AJOUTER DU CODE ICI
         # norm_left et norm_right correspondent à la racine carrée de la somme des carrés des éléments
         # de chunk_left et chunk_right, respectivement
-        norm_left = 0
-        norm_right = 0
+        norm_left = np.sqrt(sum(chunk_left**2))
+        norm_right = 3
 
         # Gauche
         desired_height_left = 30 * norm_left
@@ -123,22 +125,22 @@ while True:
         deltaTime = (t - getTicksLastFrame) / 1000.0
         getTicksLastFrame = t
 
-        # AJOUTER DU CODE ICI
+        #TODO AJOUTER DU CODE ICI
         # chunk_left et chunk_right sont des tableaux contenant les données temporelles à analyser
         # l'intervalle d'analyse contient les valeurs entre t - 0,25s et t + 0,25s
         chunk_left = 0
         chunk_right = 0
 
-        # AJOUTER DU CODE ICI
+        #TODO AJOUTER DU CODE ICI
         # chunk_left_hat et chunk_right_hat sont les transformées de Fourier de chunk_left et chunk_right, resp.
         chunk_left_hat = 0
         chunk_right_hat = 0
 
-        # AJOUTER DU CODE ICI
+        #TODO AJOUTER DU CODE ICI
         # chunk_amp est la moyenne des spectres amplitudes de chunk_left_hat et chunk_right_hat
         chunk_amp = 0
 
-        # AJOUTER DU CODE ICI
+        #TODO AJOUTER DU CODE ICI
         # deltaPosition représente l'écart "en position" entre le début et la fin des fréquences
         # associées à une colonne en fonction de l'écart "en fréquence" deltaFreq
         deltaPosition = 0
@@ -146,7 +148,7 @@ while True:
         # Construction des colonnes
         points = [(25, 500)]
         for i in range(nb_columns):
-            # AJOUTER DU CODE ICI
+            #TODO AJOUTER DU CODE ICI
             # amp représente la moyenne des amplitudes des fréquences associées à la i-ième colonne
             amp = 0
 
