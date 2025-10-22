@@ -86,14 +86,18 @@ while True:
         #TODO AJOUTER DU CODE ICI
         # chunk_left et chunk_right sont des tableaux contenant les données temporelles à analyser
         # l'intervalle d'analyse contient les valeurs entre t - 0,01s et t + 0,01s
-        chunk_left = data_left+0.1
-        chunk_right = data_left-0.1
+        start = int((t / 1000.0) * fs - 0.01 * fs)
+        end = int((t / 1000.0) * fs + 0.01 * fs)
+
+        chunk_left = data_left[start:end]
+        chunk_right = data_right[start:end]
+
 
         #TODO AJOUTER DU CODE ICI
         # norm_left et norm_right correspondent à la racine carrée de la somme des carrés des éléments
         # de chunk_left et chunk_right, respectivement
-        norm_left = np.sqrt(sum(chunk_left**2))
-        norm_right = np.sqrt(sum(chunk_right**2))
+        norm_left = np.linalg.norm(chunk_left)
+        norm_right = np.linalg.norm(chunk_right)
 
         # Gauche
         desired_height_left = 30 * norm_left
@@ -130,29 +134,41 @@ while True:
         #TODO AJOUTER DU CODE ICI
         # chunk_left et chunk_right sont des tableaux contenant les données temporelles à analyser
         # l'intervalle d'analyse contient les valeurs entre t - 0,25s et t + 0,25s
-        chunk_left = 0
-        chunk_right = 0
+        start = int((t / 1000.0) * fs - 0.25 * fs)
+        end = int((t / 1000.0) * fs + 0.25 * fs)
+
+        chunk_left = data_left[start:end]
+        chunk_right = data_right[start:end]
+
 
         #TODO AJOUTER DU CODE ICI
         # chunk_left_hat et chunk_right_hat sont les transformées de Fourier de chunk_left et chunk_right, resp.
-        chunk_left_hat = 0
-        chunk_right_hat = 0
+        chunk_left_hat = rfft(chunk_left)
+        chunk_right_hat = rfft(chunk_right)
 
         #TODO AJOUTER DU CODE ICI
         # chunk_amp est la moyenne des spectres amplitudes de chunk_left_hat et chunk_right_hat
-        chunk_amp = 0
+        chunk_amp =  (np.abs(chunk_left_hat) + np.abs(chunk_right_hat))/2
 
         #TODO AJOUTER DU CODE ICI
         # deltaPosition représente l'écart "en position" entre le début et la fin des fréquences
         # associées à une colonne en fonction de l'écart "en fréquence" deltaFreq
-        deltaPosition = 0
+        N = len(chunk_left)
+        freqs = rfftfreq(N, 1.0 / fs)
+        df = freqs[1] - freqs[0]
 
+        deltaPosition = deltaFreq / df
+
+        pos = 0.0
         # Construction des colonnes
         points = [(25, 500)]
         for i in range(nb_columns):
             #TODO AJOUTER DU CODE ICI
             # amp représente la moyenne des amplitudes des fréquences associées à la i-ième colonne
-            amp = 0
+            p0 = int(pos)
+            pos += deltaPosition
+            p1 = int(pos)
+            amp = max(1,int(np.mean(chunk_amp[p0:p1])))
 
             # Conversion des amplitudes en décibels
             amp_db = np.clip(20 * np.log10(amp / 32768), -80, 0) + 80
