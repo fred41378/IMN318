@@ -7,7 +7,7 @@ from scipy.fft import rfft, rfftfreq
 import pygame
 import sys
 
-fichier_a_lire = "./fichiers_sonores/toxic.wav"
+fichier_a_lire = "./fichiers_sonores/sweep3.wav"
 
 # Ouverture du fichier musical pour l'analyse
 fs, data = wavfile.read(fichier_a_lire)
@@ -86,8 +86,8 @@ while True:
         #TODO AJOUTER DU CODE ICI
         # chunk_left et chunk_right sont des tableaux contenant les données temporelles à analyser
         # l'intervalle d'analyse contient les valeurs entre t - 0,01s et t + 0,01s
-        start = int((t / 1000.0) * fs - 0.01 * fs)
-        end = int((t / 1000.0) * fs + 0.01 * fs)
+        start = int(((t / 1000.0) - 0.01) * fs)
+        end = int(((t / 1000.0) + 0.01) * fs)
 
         chunk_left = data_left[start:end]
         chunk_right = data_right[start:end]
@@ -134,8 +134,8 @@ while True:
         #TODO AJOUTER DU CODE ICI
         # chunk_left et chunk_right sont des tableaux contenant les données temporelles à analyser
         # l'intervalle d'analyse contient les valeurs entre t - 0,25s et t + 0,25s
-        start = int((t / 1000.0) * fs - 0.25 * fs)
-        end = int((t / 1000.0) * fs + 0.25 * fs)
+        start = int(((t / 1000.0) - 0.25) * fs)
+        end = int(((t / 1000.0) + 0.25) * fs)
 
         chunk_left = data_left[start:end]
         chunk_right = data_right[start:end]
@@ -153,11 +153,15 @@ while True:
         #TODO AJOUTER DU CODE ICI
         # deltaPosition représente l'écart "en position" entre le début et la fin des fréquences
         # associées à une colonne en fonction de l'écart "en fréquence" deltaFreq
-        N = len(chunk_left)
+        N = len(chunk_amp)
         freqs = rfftfreq(N, 1.0 / fs)
         df = freqs[1] - freqs[0]
 
+        print("\n N:", N)
+        print("freqs:", freqs)
+        print("df:", df)
         deltaPosition = deltaFreq / df
+        print("\n Delta position: ", deltaPosition)
 
         pos = 0.0
         # Construction des colonnes
@@ -168,6 +172,9 @@ while True:
             p0 = int(pos)
             pos += deltaPosition
             p1 = int(pos)
+            p1 = max(p0+1, p1)
+            print("\n p0 :", p0)
+            print("\n p1 :", p1)
             amp = max(1,int(np.mean(chunk_amp[p0:p1])))
 
             # Conversion des amplitudes en décibels
