@@ -1,27 +1,27 @@
-from random import random
-
 import numpy as np
-from numpy.linalg import norm
 from scipy.io import wavfile
 from scipy.fft import rfft, rfftfreq
 import pygame
 import sys
 
-fichier_a_lire = "./fichiers_sonores/sweep3.wav"
+# IMN318 TP1 - Anaïs Lanthier (lana1815) et Frederick Taylor (tayf2335)
+
+fichier = "fichiers_sonores/sweep3.wav"
 
 # Ouverture du fichier musical pour l'analyse
-fs, data = wavfile.read(fichier_a_lire)
+fs, data = wavfile.read(fichier)
 
 # Séparation des canaux gauche-droite
-#TODO AJOUTER DU CODE ICI
-data_left = data[:,0]
-data_right = data[:,1]
+data_left = data[:, 0]
+data_right = data[:, 1]
 
+# Zero padding
+data_left = np.pad(data_left, (0, int(fs)), 'constant')
+data_right = np.pad(data_right, (0, int(fs)), 'constant')
 
 # Pour des fins de manipulation, ramener les valeurs des cannaux gauche-droite entre -1 et 1
-#TODO AJOUTER DU CODE ICI
-data_left = data_left/np.max(data_left)
-data_right = data_right/np.max(data_right)
+data_left = data_left/32767
+data_right = data_right/32767
 
 # Initialisation de la fenêtre graphique
 pygame.init()
@@ -29,7 +29,7 @@ display = (800, 600)
 surface = pygame.display.set_mode(display)
 
 # Ouverture du fichier musical pour la lecture
-pygame.mixer.music.load(fichier_a_lire)
+pygame.mixer.music.load(fichier)
 pygame.mixer.music.play(0)
 play_time = pygame.time.get_ticks()
 
@@ -83,21 +83,16 @@ while True:
         deltaTime = (t - getTicksLastFrame) / 1000.0
         getTicksLastFrame = t
 
-        #TODO AJOUTER DU CODE ICI
         # chunk_left et chunk_right sont des tableaux contenant les données temporelles à analyser
         # l'intervalle d'analyse contient les valeurs entre t - 0,01s et t + 0,01s
-        start = int(((t / 1000.0) - 0.01) * fs)
-        end = int(((t / 1000.0) + 0.01) * fs)
+        t = t/1000 # t est en milisecondes
+        chunk_left = data_left[int((t-0.01) * fs) : int((t+0.01) * fs)]
+        chunk_right = data_right[int((t-0.01) * fs) : int((t+0.01) * fs)]
 
-        chunk_left = data_left[start:end]
-        chunk_right = data_right[start:end]
-
-
-        #TODO AJOUTER DU CODE ICI
         # norm_left et norm_right correspondent à la racine carrée de la somme des carrés des éléments
         # de chunk_left et chunk_right, respectivement
-        norm_left = np.linalg.norm(chunk_left)
-        norm_right = np.linalg.norm(chunk_right)
+        norm_left = np.sqrt(sum(chunk_left**2))
+        norm_right = np.sqrt(sum(chunk_right**2))
 
         # Gauche
         desired_height_left = 30 * norm_left
@@ -131,51 +126,40 @@ while True:
         deltaTime = (t - getTicksLastFrame) / 1000.0
         getTicksLastFrame = t
 
-        #TODO AJOUTER DU CODE ICI
         # chunk_left et chunk_right sont des tableaux contenant les données temporelles à analyser
         # l'intervalle d'analyse contient les valeurs entre t - 0,25s et t + 0,25s
-        start = int(((t / 1000.0) - 0.25) * fs)
-        end = int(((t / 1000.0) + 0.25) * fs)
+        t = t / 1000  # t est en milisecondes
+        chunk_left = data_left[int((t - 0.25) * fs): int((t + 0.25) * fs)]
+        chunk_right = data_right[int((t - 0.25) * fs): int((t + 0.25) * fs)]
 
-        chunk_left = data_left[start:end]
-        chunk_right = data_right[start:end]
-
-
-        #TODO AJOUTER DU CODE ICI
         # chunk_left_hat et chunk_right_hat sont les transformées de Fourier de chunk_left et chunk_right, resp.
-        chunk_left_hat = rfft(chunk_left)
-        chunk_right_hat = rfft(chunk_right)
+        if chunk_left.size > 0 and chunk_right.size > 0:
+            chunk_left_hat = rfft(chunk_left)
+            chunk_right_hat = rfft(chunk_right)
 
-        #TODO AJOUTER DU CODE ICI
-        # chunk_amp est la moyenne des spectres amplitudes de chunk_left_hat et chunk_right_hat
-        chunk_amp =  (np.abs(chunk_left_hat) + np.abs(chunk_right_hat))/2
+            # chunk_amp est la moyenne des spectres amplitudes de chunk_left_hat et chunk_right_hat
+            chunk_amp = (np.abs(chunk_right_hat) + np.abs(chunk_left_hat)) / 2
 
-        #TODO AJOUTER DU CODE ICI
-        # deltaPosition représente l'écart "en position" entre le début et la fin des fréquences
-        # associées à une colonne en fonction de l'écart "en fréquence" deltaFreq
-        N = len(chunk_amp)
-        freqs = rfftfreq(N, 1.0 / fs)
-        df = freqs[1] - freqs[0]
+            # deltaPosition représente l'écart "en position" entre le début et la fin des fréquences
+            # associées à une colonne en fonction de l'écart "en fréquence" deltaFreq
+            N = len(chunk_left)
+            freqs = rfftfreq(N, 1.0 / fs)
+            df = freqs[1] - freqs[0]
+            deltaPosition = (deltaFreq / df)
+            pos = 0
 
-        print("\n N:", N)
-        print("freqs:", freqs)
-        print("df:", df)
-        deltaPosition = deltaFreq / df
-        print("\n Delta position: ", deltaPosition)
-
-        pos = 0.0
         # Construction des colonnes
         points = [(25, 500)]
         for i in range(nb_columns):
-            #TODO AJOUTER DU CODE ICI
             # amp représente la moyenne des amplitudes des fréquences associées à la i-ième colonne
-            p0 = int(pos)
-            pos += deltaPosition
-            p1 = int(pos)
-            p1 = max(p0+1, p1)
-            print("\n p0 :", p0)
-            print("\n p1 :", p1)
-            amp = max(1,int(np.mean(chunk_amp[p0:p1])))
+            if (chunk_left.size > 0) and (chunk_right.size > 0):
+                p0 = int(pos)
+                pos += deltaPosition
+                p1 = int(pos)
+                p1 = max(p0 + 1, p1)
+                amp = max(1, int(np.mean(chunk_amp[p0:p1])))
+            else:
+                amp = 1
 
             # Conversion des amplitudes en décibels
             amp_db = np.clip(20 * np.log10(amp / 32768), -80, 0) + 80
