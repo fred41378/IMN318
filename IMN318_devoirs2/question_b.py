@@ -63,14 +63,14 @@ plt.show()
 
 mean = 0
 scale = 1
-noise = np.random.normal(mean, scale, size=111)
+noise = np.random.normal(mean, scale, size=N)
 
 noise_filtre = np.convolve(noise, h, mode="same")
+x = fft.rfftfreq(N) * 2
+noise_filtre_fft = fft.rfft(noise_filtre)
+noise_fft = fft.rfft(noise)
 
-noise_filtre_fft = fft.fft(noise_filtre)
-noise_fft = fft.fft(noise)
-
-plt.plot(np.abs(noise_fft),color='orange')
-plt.plot(np.abs(noise_filtre_fft),color='royalblue')
+plt.plot(x, np.abs(noise_fft),color='orange')
+plt.plot(x,  np.abs(noise_filtre_fft),color='royalblue')
 plt.title("Bruit Blanc + Filtre")
 plt.show()
