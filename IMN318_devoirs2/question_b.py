@@ -3,6 +3,10 @@ import numpy as np
 import scipy.fft as fft
 import scipy.signal as signal
 
+"""
+Auteurs : Frederick Taylor (tayf2335) et Anaïs Lanthier (lana1825)
+"""
+
 # CONCEPTION DU FILTRE
 
 N = 110  # Ordre de 310 -> N+1 coefficients
