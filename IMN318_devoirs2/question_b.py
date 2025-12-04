@@ -4,7 +4,7 @@ import scipy.fft as fft
 import scipy.signal as signal
 
 """
-Auteurs : Frederick Taylor (tayf2335) et Anaïs Lanthier (lana1825)
+Auteurs : Frederick Taylor (tayf2335) et Anaïs Lanthier (lana1815)
 """
 
 # CONCEPTION DU FILTRE
